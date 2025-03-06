@@ -12,6 +12,11 @@ class material {
 		) const {
 			return false;
 		}
+		virtual bool isCel() const{
+			return is_cel;
+		}
+	protected:
+		bool is_cel = false;
 };
 
 class lambertian : public material {
@@ -33,6 +38,46 @@ class lambertian : public material {
 	private:
 		color albedo;
 };
+
+class cel : public material {
+	public:
+		cel(const color& albedo, const color& outline_color, const double edge_threshold)
+		: albedo(albedo), outline_color(outline_color), edge_threshold(edge_threshold) {
+			is_cel = true;
+		}
+
+		bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
+		const override{
+
+			auto scatter_direction = rec.normal + random_unit_vector();
+
+			if (scatter_direction.near_zero())
+				scatter_direction = rec.normal;
+			vec3 light_dir = unit_vector(vec3(0, -1, 0));
+
+			double dnr = dot(rec.normal, unit_vector(-r_in.direction()));
+			if (dnr < edge_threshold){
+				attenuation = outline_color;
+			} else {
+				// double light_intensity = dot(light_dir, rec.normal);
+				// attenuation = (light_intensity > 0)? albedo * 0.3: albedo;
+				attenuation = albedo;
+			}
+			// if (dot(light_dir, unit_vector(-r_in.direction())) == 1){
+			// 	attenuation = color(0, 0, 0);
+			// }
+			scattered = ray(rec.p, scatter_direction);
+			return true;
+		}
+		bool isCel() const override{
+			return true;
+		}
+
+	private:
+		color albedo;
+		color outline_color;
+		double edge_threshold;
+};	
 
 class metal : public material {
 	public:

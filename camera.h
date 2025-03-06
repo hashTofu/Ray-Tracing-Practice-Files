@@ -34,7 +34,7 @@ class camera {
 				std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
 				for(int i = 0; i < image_width; ++i){
 					color pixel_color(0, 0, 0);
-					color thread_color(0,0,0);
+					color thread_color(0, 0, 0);
         
 					#pragma omp parallel private(thread_color)
 					{
@@ -132,19 +132,30 @@ class camera {
 		color ray_color(const ray& r, int depth, const hittable& world) const {
 			if (depth <= 0)
 				return color(0, 0, 0);
-
+			
 			hit_record rec;
-
+ 
 			if (world.hit(r, interval(0.001, infinity), rec)) {
 				ray scattered;
 				color attenuation;
-				if (rec.mat->scatter(r, rec, attenuation, scattered))
+
+
+				if (rec.mat->scatter(r, rec, attenuation, scattered)){
+					vec3 light_dir = vec3(0, -1, 0);
+					ray shadow_r(rec.p + rec.normal * 0.0001, -light_dir);
+					hit_record shadow_rec;
+					// if shadow ray collided any hittable
+					bool in_shadow = world.hit(shadow_r, interval(0.001, infinity), shadow_rec);
+					if(in_shadow && (rec.mat->isCel() || shadow_rec.mat->isCel())){
+						attenuation *= 0.3;
+					}
 					return attenuation * ray_color(scattered, depth-1, world);
+				}
 				return color(0, 0, 0);
 			}
 			vec3 unit_direction = unit_vector(r.direction());
 			auto a = 0.5*(unit_direction.x() + 1.0);
-			return (1.0-a)*color(0.9, 0.6, 0.6) + a*color(0.5, 0.7, 1.0);
+			return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.3, 0.7, 1.0);
 		}
 };
 
