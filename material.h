@@ -34,7 +34,6 @@ class lambertian : public material {
 			attenuation = albedo;
 			return true;
 		}
-
 	private:
 		color albedo;
 };
@@ -53,7 +52,6 @@ class cel : public material {
 
 			if (scatter_direction.near_zero())
 				scatter_direction = rec.normal;
-			vec3 light_dir = unit_vector(vec3(0, -1, 0));
 
 			double dnr = dot(rec.normal, unit_vector(-r_in.direction()));
 			if (dnr < edge_threshold){

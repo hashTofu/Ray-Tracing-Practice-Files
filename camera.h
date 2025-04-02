@@ -34,20 +34,17 @@ class camera {
 				std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
 				for(int i = 0; i < image_width; ++i){
 					color pixel_color(0, 0, 0);
-					color thread_color(0, 0, 0);
-        
-					#pragma omp parallel private(thread_color)
+					
+					#pragma omp parallel
 					{
-						thread_color = color(0,0,0);
+						color thread_color(0, 0, 0);
 						#pragma omp for
 						for(int sample = 0; sample < samples_per_pixel; ++sample) {
 							ray r = get_ray(i, j);
 							thread_color += ray_color(r, max_depth, world);
 						}
 						#pragma omp critical
-						{
 							pixel_color += thread_color;
-						}
 					}
 					write_color(std::cout, pixel_samples_scale * pixel_color);
 				}
@@ -147,7 +144,9 @@ class camera {
 					// if shadow ray collided any hittable
 					bool in_shadow = world.hit(shadow_r, interval(0.001, infinity), shadow_rec);
 					if(in_shadow && (rec.mat->isCel() || shadow_rec.mat->isCel())){
-						attenuation *= 0.3;
+						if(dot(rec.normal, unit_vector(-r.direction())) >= 0.3){
+							attenuation *= 0.3;
+						}
 					}
 					return attenuation * ray_color(scattered, depth-1, world);
 				}
