@@ -3,12 +3,11 @@
 
 #include "hittable.h"
 #include "material.h"
-#include "omp.h"
-#include "vec3.h"
-#include "color.h"
-#include "ray.h"
-#include <vector>
-#include <chrono>
+#include "openacc.h"
+#include "vector"
+// #include "vec3.h"
+// #include "color.h"
+// #include "ray.h"
 
 class camera {
 	public:
@@ -25,32 +24,34 @@ class camera {
 		double defocus_angle = 0;  // Variation angle of rays through each pixel
     	double focus_dist = 10;    // Distance from camera lookfrom point to plane of perfect focus
 
+		
 		void render(const hittable& world){
 			initialize();
-			std::vector<color> frame_buffer(image_width * image_height);
+			
+			std::vector<color> framebuffer(image_width * image_height);
 			// render
-			auto start_time = std::chrono::high_resolution_clock::now();
-			#pragma omp parallel for
-			for (int j = 0; j < image_height; ++j) {
-				for (int i = 0; i < image_width; ++i) {
-					color pixel_color(0, 0, 0);
-					for (int sample = 0; sample < samples_per_pixel; ++sample) {
-						ray r = get_ray(i, j);
-						pixel_color += ray_color(r, max_depth, world);
-					}
-					frame_buffer[j * image_width + i] = pixel_samples_scale * pixel_color;
-				}
-			}
-			auto stop_time = std::chrono::high_resolution_clock::now();
-			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_time - start_time);
-			std::clog << "Render time: " << duration.count() << " ms" << std::endl;
-
+			
 			std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-			for (int j = 0; j < image_height; ++j) {
-				for (int i = 0; i < image_width; ++i) {
-					write_color(std::cout, frame_buffer[j * image_width + i]);
+
+			#pragma acc data copy(framebuffer[:image_width*image_height])
+			{
+				#pragma acc parallel loop collapse(2)
+				for(int j = 0; j < image_height; ++j){
+					// std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+					for(int i = 0; i < image_width; ++i){
+						color pixel_color(0, 0, 0);
+						
+						for(int sample = 0; sample < samples_per_pixel; ++sample) {
+							ray r = get_ray(i, j);
+							pixel_color += ray_color(r, max_depth, world);
+						}
+						framebuffer[image_height * i + j] = pixel_samples_scale * pixel_color;
+					}
 				}
+				for(color &c : framebuffer)
+					write_color(std::cout, c);
 			}
+			std::clog << "\rDone.                 \n";
 		}
 
 	private:
@@ -100,7 +101,7 @@ class camera {
 			defocus_disk_u = u * defocus_radius;
 			defocus_disk_v = v * defocus_radius;
 		}
-
+		#pragma acc routine seq
 		ray get_ray(int i, int j) const {
 			// Construct a camera ray originating from the origin and directed at randomly sampled
         	// point around the pixel location i, j.
@@ -113,21 +114,20 @@ class camera {
 
 			auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample();
 			auto ray_direction = pixel_sample - ray_origin;
-			auto ray_time = random_double();
 
-        	return ray(ray_origin, ray_direction, ray_time);
+			return ray(ray_origin, ray_direction);
 		}
-
+		#pragma acc routine seq
 		vec3 sample_square() const {
 			// Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
 			return vec3(random_double() - 0.5, random_double() - 0.5, 0);
 		}
-		
+		#pragma acc routine seq
 		point3 defocus_disk_sample() const {
 			auto p = random_in_unit_disk();
 			return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
 		}
-
+		#pragma acc routine seq
 		color ray_color(const ray& r, int depth, const hittable& world) const {
 			if (depth <= 0)
 				return color(0, 0, 0);

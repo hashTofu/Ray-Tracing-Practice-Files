@@ -7,6 +7,7 @@ class material {
 	public:
 		virtual ~material() = default;
 
+		#pragma acc routine seq
 		virtual bool scatter(
 			const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
 		) const {
@@ -18,9 +19,6 @@ class material {
 		virtual double edgeThreshold() const{
 			return 0.0;
 		}
-		virtual color rAlbedo() const{
-			return vec3(0, 0, 0);
-		}
 	protected:
 		bool is_cel = false;
 };
@@ -28,7 +26,7 @@ class material {
 class lambertian : public material {
 	public:
 		lambertian(const color& albedo) : albedo(albedo) {}
-
+		#pragma acc routine seq
 		bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
 		const override{
 			auto scatter_direction = rec.normal + random_unit_vector();
@@ -36,7 +34,7 @@ class lambertian : public material {
 			if (scatter_direction.near_zero())
 				scatter_direction = rec.normal;
 
-			scattered = ray(rec.p, scatter_direction, r_in.time());
+			scattered = ray(rec.p, scatter_direction);
 			attenuation = albedo;
 			return true;
 		}
@@ -50,7 +48,7 @@ class cel : public material {
 		: albedo(albedo), outline_color(outline_color), edge_threshold(edge_threshold) {
 			is_cel = true;
 		}
-
+		#pragma acc routine seq
 		bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
 		const override{
 
@@ -59,8 +57,8 @@ class cel : public material {
 			if (scatter_direction.near_zero())
 				scatter_direction = rec.normal;
 
-			double ndr = dot(rec.normal, unit_vector(-r_in.direction()));
-			if (ndr < edge_threshold){
+			double dnr = dot(rec.normal, unit_vector(-r_in.direction()));
+			if (dnr < edge_threshold){
 				attenuation = outline_color;
 			} else {
 				// double light_intensity = dot(light_dir, rec.normal);
@@ -70,7 +68,7 @@ class cel : public material {
 			// if (dot(light_dir, unit_vector(-r_in.direction())) == 1){
 			// 	attenuation = color(0, 0, 0);
 			// }
-			scattered = ray(rec.p, scatter_direction, r_in.time());
+			scattered = ray(rec.p, scatter_direction);
 			return true;
 		}
 		bool isCel() const override{
@@ -78,9 +76,6 @@ class cel : public material {
 		}
 		virtual double edgeThreshold() const override { 
             return edge_threshold; 
-        }
-		virtual color rAlbedo() const override { 
-            return albedo; 
         }
 
 	private:
@@ -92,12 +87,12 @@ class cel : public material {
 class metal : public material {
 	public:
 		metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
-
+		#pragma acc routine seq
 		bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
 		const override{
 			vec3 reflected = reflect(r_in.direction(), rec.normal);
 			reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
-			scattered = ray(rec.p, reflected, r_in.time());
+			scattered = ray(rec.p, reflected);
 			attenuation = albedo;
 			// prevent rays shooting inside of the object
 			return (dot(scattered.direction(), rec.normal) > 0);
@@ -109,9 +104,9 @@ class metal : public material {
 };
 
 class dielectric : public material {
-  public:
+  public: 
     dielectric(double refraction_index) : refraction_index(refraction_index) {}
-
+	#pragma acc routine seq
     bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
     const override {
         attenuation = color(1.0, 1.0, 1.0);
@@ -129,7 +124,7 @@ class dielectric : public material {
         else
             direction = refract(unit_direction, rec.normal, ri);
 
-		scattered = ray(rec.p, direction, r_in.time());
+        scattered = ray(rec.p, direction);
         return true;
     }
 
