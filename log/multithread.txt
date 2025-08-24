@@ -1,0 +1,39 @@
+Starting Raytracer Profiling...
+=================================
+Testing with 1 threads...
+BVH construction time: 2542000 ns
+Render time: 49371 ms
+Total time: 49456 ms
+Time taken (1 threads): 49.4660652 seconds
+---------------------------------
+Testing with 2 threads...
+BVH construction time: 2513000 ns
+Render time: 34344 ms
+Total time: 34424 ms
+Time taken (2 threads): 34.432271 seconds
+---------------------------------
+Testing with 4 threads...
+BVH construction time: 2955000 ns
+Render time: 19822 ms
+Total time: 19900 ms
+Time taken (4 threads): 19.9082824 seconds
+---------------------------------
+Testing with 8 threads...
+BVH construction time: 2518000 ns
+Render time: 12813 ms
+Total time: 12891 ms
+Time taken (8 threads): 12.8995209 seconds
+---------------------------------
+Testing with 12 threads...
+BVH construction time: 2544000 ns
+Render time: 10505 ms
+Total time: 10585 ms
+Time taken (12 threads): 10.5930071 seconds
+---------------------------------
+Testing with 16 threads...
+BVH construction time: 2494000 ns
+Render time: 9676 ms
+Total time: 9755 ms
+Time taken (16 threads): 9.7638906 seconds
+---------------------------------
+Profiling finished.

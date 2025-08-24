@@ -1,0 +1,14 @@
+raytracinginoneweekendcpy on  main [✘!?] via C v12.2.0-gcc took 47s
+❯ .\newtest > 0 && .\newtests > 0 && .\mainoldnth > 0 && .\mainoldsort > 0
+BVH construction time: 1618000 ns
+Render time: 10130 ms
+Total time: 10155 ms
+BVH construction time: 3120000 ns
+Render time: 9872 ms
+Total time: 9899 ms
+BVH construction time: 2216000 ns
+Render time: 14895 ms
+Total time: 14920 ms
+BVH construction time: 2644000 ns
+Render time: 13384 ms
+Total time: 13414 ms

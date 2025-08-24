@@ -1,0 +1,38 @@
+=================================
+Testing with 1 threads...
+BVH construction time: 2531000 ns
+Render time: 49619 ms
+Total time: 49699 ms
+Time taken (1 threads): 49.7079676 seconds
+---------------------------------
+Testing with 2 threads...
+BVH construction time: 2788000 ns
+Render time: 34218 ms
+Total time: 34298 ms
+Time taken (2 threads): 34.3067697 seconds
+---------------------------------
+Testing with 4 threads...
+BVH construction time: 2507000 ns
+Render time: 19740 ms
+Total time: 19819 ms
+Time taken (4 threads): 19.8274775 seconds
+---------------------------------
+Testing with 6 threads...
+BVH construction time: 2501000 ns
+Render time: 15466 ms
+Total time: 15545 ms
+Time taken (6 threads): 15.553618 seconds
+---------------------------------
+Testing with 8 threads...
+BVH construction time: 2601000 ns
+Render time: 12797 ms
+Total time: 12876 ms
+Time taken (8 threads): 12.8846967 seconds
+---------------------------------
+Testing with 12 threads...
+BVH construction time: 2530000 ns
+Render time: 10167 ms
+Total time: 10249 ms
+Time taken (12 threads): 10.2572052 seconds
+---------------------------------
+Profiling finished.

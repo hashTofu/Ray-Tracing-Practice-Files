@@ -1,0 +1,6 @@
+g++ -O3 -fopenmp -o main main.cpp
+./main > output.ppm
+BVH construction time: 0 ns
+Render time: 1572769 ms
+Total time: 1572850 ms
+magick output.ppm output.png

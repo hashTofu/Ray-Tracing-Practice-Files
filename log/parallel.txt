@@ -1,0 +1,66 @@
+Starting Raytracer Profiling...
+=================================
+Testing with 1 threads...
+BVH construction time: 9321000 ns
+Render time: 46382 ms
+Total time: 46468 ms
+---------------------------------
+Testing with 2 threads...
+BVH construction time: 9230000 ns
+Render time: 32981 ms
+Total time: 33067 ms
+---------------------------------
+Testing with 4 threads...
+BVH construction time: 9348000 ns
+Render time: 18053 ms
+Total time: 18141 ms
+---------------------------------
+Testing with 6 threads...
+BVH construction time: 9344000 ns
+Render time: 14635 ms
+Total time: 14728 ms
+---------------------------------
+Testing with 8 threads...
+BVH construction time: 9325000 ns
+Render time: 11875 ms
+Total time: 11966 ms
+---------------------------------
+Testing with 12 threads...
+BVH construction time: 9346000 ns
+Render time: 9616 ms
+Total time: 9706 ms
+---------------------------------
+Profiling finished.
+Starting Raytracer Profiling...
+=================================
+Testing with 1 threads...
+BVH construction time: 9057000 ns
+Render time: 45883 ms
+Total time: 45969 ms
+---------------------------------
+Testing with 2 threads...
+BVH construction time: 9119000 ns
+Render time: 23896 ms
+Total time: 23982 ms
+---------------------------------
+Testing with 4 threads...
+BVH construction time: 9223000 ns
+Render time: 12968 ms
+Total time: 13054 ms
+---------------------------------
+Testing with 6 threads...
+BVH construction time: 9225000 ns
+Render time: 9933 ms
+Total time: 10019 ms
+---------------------------------
+Testing with 8 threads...
+BVH construction time: 9196000 ns
+Render time: 9226 ms
+Total time: 9313 ms
+---------------------------------
+Testing with 12 threads...
+BVH construction time: 10521000 ns
+Render time: 8243 ms
+Total time: 8332 ms
+---------------------------------
+Profiling finished.

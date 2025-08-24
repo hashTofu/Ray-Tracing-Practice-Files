@@ -1,0 +1,6 @@
+BVH construction time: 1518000 ns
+Render time: 4925 ms
+Total time: 4947 ms
+BVH construction time: 3350000 ns
+Render time: 4858 ms
+Total time: 4884 ms
