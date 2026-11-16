@@ -9,7 +9,12 @@ class hit_record {
 	public:
 		point3 p;
 		vec3 normal;
-		shared_ptr<material> mat;
+		// Raw pointer, not shared_ptr: every hit used to copy the shared_ptr,
+		// which means an atomic refcount increment/decrement per bounce. All
+		// worker threads hammered the same control blocks, so the cache lines
+		// ping-ponged between cores and parallel scaling collapsed.
+		// Ownership stays with hittable_list / main(); nothing here outlives it.
+		const material* mat = nullptr;
 		double t;
 		bool front_face;
 
