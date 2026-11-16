@@ -4,6 +4,7 @@
 #include "hittable.h"
 #include "material.h"
 #include "omp.h"
+#include <vector>
 // #include "vec3.h"
 // #include "color.h"
 // #include "ray.h"
@@ -30,24 +31,27 @@ class camera {
 
 			std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
+			// One parallel region per ROW, not per pixel. The previous version
+			// forked a team for every single pixel (image_width * image_height
+			// fork/join pairs), which cost far more than the work it parallelised.
+			// Rows are buffered so stdout order stays deterministic.
+			std::vector<color> row(image_width);
+
 			for(int j = 0; j < image_height; ++j){
 				std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+
+				#pragma omp parallel for schedule(dynamic, 4)
 				for(int i = 0; i < image_width; ++i){
 					color pixel_color(0, 0, 0);
-					
-					#pragma omp parallel
-					{
-						color thread_color(0, 0, 0);
-						#pragma omp for
-						for(int sample = 0; sample < samples_per_pixel; ++sample) {
-							ray r = get_ray(i, j);
-							thread_color += ray_color(r, max_depth, world);
-						}
-						#pragma omp critical
-							pixel_color += thread_color;
+					for(int sample = 0; sample < samples_per_pixel; ++sample) {
+						ray r = get_ray(i, j);
+						pixel_color += ray_color(r, max_depth, world);
 					}
-					write_color(std::cout, pixel_samples_scale * pixel_color);
+					row[i] = pixel_samples_scale * pixel_color;
 				}
+
+				for(int i = 0; i < image_width; ++i)
+					write_color(std::cout, row[i]);
 			}
 			std::clog << "\rDone.                 \n";
 		}
